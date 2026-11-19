@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Check</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Keeps exact 16:9 proportions at maximum screen size without cropping */
+        .slide {
+            display: none;
+            position: relative;
+            width: min(100vw, 177.78vh);
+            height: min(100vh, 56.25vw);
+        }
+
+        .slide.active {
+            display: block;
+            animation: fadeIn 0.35s ease;
+        }
+
+        .slide img.bg {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .hotspot {
+            position: absolute;
+            cursor: pointer;
+        }
+
+        /* Slide 2: "Click" Banner */
+        .click-banner { top: 9%; left: 30%; width: 37%; height: 15%; }
+
+        /* Slide 3: 4 Expression Faces */
+        .mood-btn { top: 34%; width: 8.5%; height: 14%; }
+        .mood-1 { left: 9%; }
+        .mood-2 { left: 18.5%; }
+        .mood-3 { left: 28.5%; }
+        .mood-4 { left: 38%; }
+
+        /* Slide 4: Full Widescreen Airdrop Photo Box */
+        .airdrop-photo {
+            position: absolute;
+            top: 32.8%;
+            left: 16.5%;
+            width: 19%;
+            height: 39.5%;
+            object-fit: contain; /* Shows your ENTIRE photo without zooming/cropping */
+            background-color: #dbeafe;
+            z-index: 1;
+        }
+
+        /* Slide 4: Decline / Back Button */
+        .back-btn {
+            position: absolute;
+            bottom: 14%;
+            left: 16.5%;
+            width: 9.5%;
+            height: 8%;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="slide1" class="slide active" onclick="goToSlide(2)" style="cursor: pointer;">
+        <img src="slide1.jpg" class="bg" alt="Slide 1" onerror="fixImg(this, 'slide1')">
+    </div>
+
+    <div id="slide2" class="slide">
+        <img src="slide2.jpg" class="bg" alt="Slide 2" onerror="fixImg(this, 'slide2')">
+        <div class="hotspot click-banner" onclick="goToSlide(3)"></div>
+    </div>
+
+    <div id="slide3" class="slide">
+        <img src="slide3.jpg" class="bg" alt="Slide 3" onerror="fixImg(this, 'slide3')">
+        <div class="hotspot mood-btn mood-1" onclick="showAirdrop('photo1')"></div>
+        <div class="hotspot mood-btn mood-2" onclick="showAirdrop('photo2')"></div>
+        <div class="hotspot mood-btn mood-3" onclick="showAirdrop('photo3')"></div>
+        <div class="hotspot mood-btn mood-4" onclick="showAirdrop('photo4')"></div>
+    </div>
+
+    <div id="slide4" class="slide">
+        <img src="slide4.png" class="bg" alt="Slide 4" onerror="fixImg(this, 'slide4')">
+        <img id="result-pic" class="airdrop-photo" src="" alt="Reaction Photo">
+        <div class="back-btn" onclick="goToSlide(3)" title="Pick another mood"></div>
+    </div>
+
+    <script>
+        function fixImg(img, baseName) {
+            const tries = [
+                baseName + '.png',
+                baseName + '.jpeg',
+                baseName.charAt(0).toUpperCase() + baseName.slice(1) + '.jpg',
+                baseName.charAt(0).toUpperCase() + baseName.slice(1) + '.png'
+            ];
+            let step = parseInt(img.dataset.step || 0);
+            if (step < tries.length) {
+                img.dataset.step = step + 1;
+                img.src = tries[step];
+            }
+        }
+
+        function goToSlide(slideNumber) {
+            document.querySelectorAll('.slide').forEach(slide => slide.classList.remove('active'));
+            document.getElementById('slide' + slideNumber).classList.add('active');
+        }
+
+        function showAirdrop(baseName) {
+            const pic = document.getElementById('result-pic');
+            pic.dataset.step = 0;
+            pic.onerror = function() { fixImg(this, baseName); };
+            pic.src = baseName + '.jpg';
+            goToSlide(4);
+        }
+    </script>
+
+</body>
+</html>
